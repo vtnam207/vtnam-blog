@@ -1,9 +1,10 @@
 ---
 import type { MarkdownHeading } from "astro";
-import { siteConfig, profileConfig } from "../config";
-import { getSortedPosts } from "../utils/content-utils";
-import { getPostUrlBySlug, url, pathsEqual } from "../utils/url-utils";
+import { Icon } from "astro-icon/components";
 import Profile from "../components/widget/Profile.astro";
+import { profileConfig, siteConfig } from "../config";
+import { getSortedPosts } from "../utils/content-utils";
+import { url } from "../utils/url-utils";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/700.css";
 import "@fontsource-variable/jetbrains-mono";
@@ -14,134 +15,152 @@ import "../styles/markdown.css";
 import "../styles/markdown-extend.styl";
 import "../styles/expressive-code.css";
 import "../styles/ctf-layout.css";
+
 interface Props {
-  title?: string;
-  banner?: string;
-  description?: string;
-  lang?: string;
-  setOGTypeArticle?: boolean;
-  headings?: MarkdownHeading[];
-  showProfile?: boolean;
+	title?: string;
+	banner?: string;
+	description?: string;
+	lang?: string;
+	setOGTypeArticle?: boolean;
+	headings?: MarkdownHeading[];
+	showProfile?: boolean;
 }
-const { title, description, lang, setOGTypeArticle, headings = [], showProfile = false } = Astro.props;
+
+const {
+	title,
+	description,
+	lang,
+	setOGTypeArticle,
+	headings = [],
+} = Astro.props;
 const posts = await getSortedPosts();
-const groups = new Map<string, typeof posts>();
-for (const post of posts) {
-  const group = post.data.ctf || post.data.category || "Notes";
-  groups.set(group, [...(groups.get(group) || []), post]);
-}
+const groups = new Set(
+	posts.map((post) => post.data.ctf || post.data.category || "Notes"),
+);
+const activeDays = new Set(
+	posts
+		.slice(0, 4)
+		.map((post) => post.data.published.toISOString().slice(0, 10)),
+).size;
 const pageTitle = title ? `${title} · ${siteConfig.title}` : siteConfig.title;
 const canonical = new URL(Astro.url.pathname, Astro.site || Astro.url.origin);
-const toc = headings.filter(h => h.depth > 1 && h.depth <= siteConfig.toc.depth + 1);
+const toc = headings.filter(
+	(heading) => heading.depth > 1 && heading.depth <= siteConfig.toc.depth + 1,
+);
+const isArticle = Boolean(setOGTypeArticle);
 ---
 <!doctype html>
-<html lang={(lang || siteConfig.lang).replace('_', '-')} class="dark" style="--hue: 285">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{pageTitle}</title>
-  <meta name="description" content={description || siteConfig.subtitle} />
-  <link rel="canonical" href={canonical} />
-  <meta property="og:title" content={pageTitle} />
-  <meta property="og:description" content={description || siteConfig.subtitle} />
-  <meta property="og:url" content={canonical} />
-  <meta property="og:type" content={setOGTypeArticle ? "article" : "website"} />
-  <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={url('/rss.xml')} />
-  <link rel="icon" type="image/svg+xml" href={url('/ctf-mark.svg')} />
-  <slot name="head" />
-</head>
-<body>
-  <a href="#reading-pane" class="skip-link">Đến nội dung</a>
-  <div class="ctf-shell">
-    <aside class="explorer" aria-label="Danh sách bài viết">
-      <header class="explorer-header">
-        <a class="brand" href={url('/')}><span aria-hidden="true">◆</span> {siteConfig.title}</a>
-        <nav aria-label="Điều hướng"><a href={url('/about/')}>ABOUT</a><a href={url('/archive/')}>ARCHIVE</a><a href={url('/rss.xml')}>RSS</a></nav>
-      </header>
-      <div class="identity"><span>{profileConfig.name}</span><span>REVERSE / RESEARCH / NOTES</span></div>
-      <div class="stats">POSTS <b>{posts.length}</b><span>·</span> GROUPS <b>{groups.size}</b><span class="status-dot" aria-label="Online"></span></div>
-      <button class="mobile-toggle" aria-expanded="false" aria-controls="explorer-content">Danh sách bài viết <span>⌄</span></button>
-      <div id="explorer-content">
-        <div class="search-row"><label class="search-box"><span aria-hidden="true">⌕</span><input id="post-search" type="search" placeholder="Search write-ups…" aria-label="Tìm theo tên, tag hoặc giải CTF" /></label><button id="fold-groups" title="Thu gọn hoặc mở các nhóm" aria-label="Thu gọn hoặc mở các nhóm">☷</button></div>
-        <div class="post-groups">
-          {[...groups].map(([name, entries]) => <details class="post-group" open>
-            <summary><span class="diamond">◆</span><span class="group-title">{name}</span><span class="dotted"></span><b>{entries.length}</b></summary>
-            <div class="group-posts">{entries.map(post => <a class:list={["explorer-post", { selected: pathsEqual(Astro.url.pathname, getPostUrlBySlug(post.slug)) }]} aria-current={pathsEqual(Astro.url.pathname, getPostUrlBySlug(post.slug)) ? 'page' : undefined} href={getPostUrlBySlug(post.slug)} data-search={`${post.data.title} ${name} ${post.data.tags.join(' ')} ${post.data.difficulty}`}>
-              <span class="post-marker" aria-hidden="true">◇</span>
-              <div class="post-info"><div class="post-topline"><strong>{post.data.title}</strong>{post.data.points !== undefined && <span class="points">{post.data.points}<small> pts</small></span>}</div><div class="post-bottomline"><div class="mini-tags">{post.data.tags.slice(0,3).map(tag => <span>{tag}</span>)}</div><time datetime={post.data.published.toISOString()}>{post.data.published.toLocaleDateString('en-GB', {timeZone: 'UTC'})}</time>{post.data.difficulty && <span>{post.data.difficulty}</span>}</div></div>
-            </a>)}</div>
-          </details>)}
-          <p id="empty-search" hidden role="status">Không tìm thấy bài phù hợp.</p>
+<html lang={(lang || siteConfig.lang).replace("_", "-")} class="dark" style="--hue: 285">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#100d18" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description || siteConfig.subtitle} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description || siteConfig.subtitle} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content={isArticle ? "article" : "website"} />
+    <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={url("/rss.xml")} />
+    <link rel="icon" type="image/svg+xml" href={url("/ctf-mark.svg")} />
+    <slot name="head" />
+  </head>
+  <body>
+    <a href="#reading-pane" class="skip-link">Đến nội dung</a>
+    {isArticle && <div class="reading-progress" aria-hidden="true"><span id="reading-progress-value"></span></div>}
+    <header class="site-header">
+      <a class="site-brand" href={url("/")}><span aria-hidden="true">✦</span> vtnam_</a>
+      <nav aria-label="Main navigation">
+        <a href={url("/about/")}><Icon name="fa6-regular:user" /> ABOUT</a>
+        <a href={url("/archive/")}><Icon name="fa6-regular:folder-open" /> ARCHIVE</a>
+        <a href={url("/rss.xml")}><Icon name="fa6-solid:rss" /> RSS</a>
+        <span class="nav-divider"></span>
+        <span class="theme-mark" aria-label="Dark theme">☾</span>
+      </nav>
+    </header>
+    <div class="ctf-shell">
+      <aside class="profile-sidebar" aria-label="Profile">
+        <Profile />
+        <div class="focus-section">
+          <div class="focus-tags"><span>CTF</span><span>RE</span><span>WEB</span><span>CRYPTO</span></div>
         </div>
-      </div>
-      <footer class="explorer-footer"><span>© {new Date().getFullYear()} {profileConfig.name}</span><a href="https://github.com/vtnam207" target="_blank" rel="noopener noreferrer">GITHUB ↗</a></footer>
-    </aside>
-
-    {showProfile ? (
-      <main id="reading-pane" tabindex="-1" class="reading-pane profile-pane">
-        <div class="reader-top"><a href={url('/')}>{siteConfig.title}</a><span>PROFILE <span aria-hidden="true">✦</span></span></div>
-        <div class="profile-home">
-          <Profile />
-          <div class="profile-about">
-            <span class="profile-kicker">VTNAM207 / CTF / REVERSE</span>
-            <h1>{profileConfig.name}</h1>
-            <p>{profileConfig.bio}</p>
-            <div class="profile-actions">
-              <a href={url('/about/')}>ABOUT</a>
-              <a href="https://github.com/vtnam207" target="_blank" rel="noopener noreferrer">GITHUB ↗</a>
-            </div>
+        <section class="learning-card" aria-label="Currently learning">
+          <div class="learning-title"><Icon name="fa6-solid:graduation-cap" /><span>Currently learning</span></div>
+          <p>x64 / VM / Web Exploit / Crypto</p>
+          <div class="learning-progress" role="img" aria-label="Learning progress: 62 percent"><span></span></div>
+          <span class="learning-percent">62%</span>
+        </section>
+        <div class="profile-stats" aria-label="Blog statistics">
+          <div><Icon name="fa6-regular:note-sticky" /><strong>{posts.length}</strong><span>Posts</span></div>
+          <div><Icon name="fa6-solid:users" /><strong>{groups.size}</strong><span>Groups</span></div>
+          <div><Icon name="fa6-solid:fire" /><strong>{activeDays}</strong><span>Active Days</span></div>
+        </div>
+        <section class="social-section">
+          <p class="social-heading"><Icon name="fa6-solid:link" /> Socials</p>
+          <div class="social-icons">
+            {profileConfig.links.map((item) => <a rel="me noopener noreferrer" aria-label={item.name} href={item.url} target="_blank" title={item.name}><Icon name={item.icon} /><span>↗</span></a>)}
+            <a aria-label="RSS feed" href={url("/rss.xml")} title="RSS"><Icon name="fa6-solid:rss" /><span>↗</span></a>
           </div>
+        </section>
+        <blockquote class="sidebar-quote"><span aria-hidden="true">“</span><p>Small steps make<br />big progress.</p><span class="quote-spark" aria-hidden="true">♧</span></blockquote>
+        <div class="sidebar-landscape" aria-hidden="true"><span class="mountain mountain-back"></span><span class="mountain mountain-front"></span><span class="pixel-moon"></span><span class="pixel-torii">⛩</span></div>
+      </aside>
+
+      <main id="reading-pane" tabindex="-1" class:list={["reading-pane", { "has-toc": siteConfig.toc.enable && toc.length > 0 }]}>
+        <div class="reader-grid">
+          <div class="reader-content"><slot /></div>
+          {siteConfig.toc.enable && toc.length > 0 && <nav id="toc" class="reader-toc" aria-label="Mục lục"><p>ON THIS PAGE</p>{toc.map((heading) => <a class:list={[{ subheading: heading.depth > 2 }]} href={`#${heading.slug}`}>{heading.text}</a>)}</nav>}
         </div>
-        <footer class="reader-footer"><span>{siteConfig.subtitle}</span><a href="#reading-pane">↑ Đầu trang</a></footer>
+        <footer class="reader-footer"><span>© {new Date().getFullYear()} {profileConfig.name} <b>—</b> Built with Astro & Tailwind CSS</span><nav aria-label="Footer links"><a href="https://github.com/vtnam207" target="_blank" rel="noopener noreferrer">GitHub</a><a href={url("/about/")}>About</a><a href={url("/archive/")}>Archive</a><a href={url("/rss.xml")}>RSS</a></nav></footer>
       </main>
-    ) : (
-      <main id="reading-pane" tabindex="-1" class:list={["reading-pane", { 'has-toc': siteConfig.toc.enable && toc.length > 0 }]}>
-        <div class="reader-top"><a href={url('/')}>{siteConfig.title}</a><span>FIELD NOTES <span aria-hidden="true">✦</span></span></div>
-        <div class="reader-grid"><div class="reader-content"><slot /></div>
-        {siteConfig.toc.enable && toc.length > 0 && <nav id="toc" class="reader-toc" aria-label="Mục lục"><p>MỤC LỤC</p>{toc.map(h => <a class:list={[{subheading: h.depth > 2}]} href={`#${h.slug}`}>{h.text}</a>)}</nav>}
-        </div>
-        <footer class="reader-footer">{siteConfig.subtitle}<a href="#reading-pane">↑ Đầu trang</a></footer>
-      </main>
-    )}
-  </div>
-</body>
+    </div>
+  </body>
 </html>
+
 <script>
-const search = document.querySelector<HTMLInputElement>('#post-search');
-const groups = [...document.querySelectorAll<HTMLDetailsElement>('.post-group')];
-search?.addEventListener('input', () => {
+const search = document.querySelector<HTMLInputElement>("#home-post-search");
+search?.addEventListener("input", () => {
   const query = search.value.toLocaleLowerCase().trim();
-  let total = 0;
-  for (const group of groups) {
-    let count = 0;
-    for (const item of group.querySelectorAll<HTMLAnchorElement>('[data-search]')) {
-      item.hidden = !item.dataset.search?.toLocaleLowerCase().includes(query);
-      if (!item.hidden) count++;
-    }
-    group.hidden = count === 0;
-    if (query) group.open = true;
-    total += count;
+  let visible = 0;
+  for (const card of document.querySelectorAll<HTMLElement>("[data-post-card]")) {
+    const matches = !query || (card.dataset.search || "").includes(query);
+    card.hidden = !matches;
+    if (matches) visible++;
   }
-  const empty = document.getElementById('empty-search');
-  if (empty) empty.hidden = total > 0;
+  const empty = document.querySelector<HTMLElement>("#empty-post-search");
+  if (empty) empty.hidden = visible > 0;
 });
-document.getElementById('fold-groups')?.addEventListener('click', () => {
-  const open = !groups.some(g => !g.hidden && g.open);
-  groups.forEach(g => { g.open = open; });
+
+document.addEventListener("keydown", (event) => {
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+    event.preventDefault();
+    search?.focus();
+  }
 });
-document.querySelector('.mobile-toggle')?.addEventListener('click', event => {
-  const button = event.currentTarget as HTMLButtonElement;
-  const expanded = button.getAttribute('aria-expanded') !== 'true';
-  button.setAttribute('aria-expanded', String(expanded));
-  document.querySelector('.explorer')?.classList.toggle('expanded', expanded);
-});
-const links = [...document.querySelectorAll<HTMLAnchorElement>('.reader-toc a')];
-if (links.length) {
-  const observer = new IntersectionObserver(entries => {
+
+const progress = document.querySelector<HTMLElement>("#reading-progress-value");
+if (progress) {
+  const updateProgress = () => {
+    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+    const percent = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
+    progress.style.width = `${Math.min(100, Math.max(0, percent))}%`;
+  };
+  window.addEventListener("scroll", updateProgress, { passive: true });
+  window.addEventListener("resize", updateProgress);
+  updateProgress();
+}
+
+const tocLinks = [...document.querySelectorAll<HTMLAnchorElement>(".reader-toc a")];
+if (tocLinks.length && "IntersectionObserver" in window) {
+  const observer = new IntersectionObserver((entries) => {
     for (const entry of entries) if (entry.isIntersecting) {
-      links.forEach(link => link.classList.toggle('active', decodeURIComponent(link.hash.slice(1)) === entry.target.id));
+      tocLinks.forEach((link) => link.classList.toggle("active", decodeURIComponent(link.hash.slice(1)) === entry.target.id));
     }
-  }, {rootMargin: '0px 0px -65% 0px'});
-  links.forEach(link => { const target = document.getElementById(decodeURIComponent(link.hash.slice(1))); if(target) observer.observe(target); });
+  }, { rootMargin: "0px 0px -65% 0px" });
+  tocLinks.forEach((link) => {
+    const target = document.getElementById(decodeURIComponent(link.hash.slice(1)));
+    if (target) observer.observe(target);
+  });
 }
 </script>
