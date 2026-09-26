@@ -46,7 +46,7 @@ export const navBarConfig: NavBarConfig = {
 };
 
 export const profileConfig: ProfileConfig = {
-	avatar: "/assets/images/profile.webp",
+	avatar: "/assets/images/avatar-vtnam.webp",
 	name: "vtnam",
 	bio: "Better to be curious than certain.",
 	links: [
@@ -54,6 +54,16 @@ export const profileConfig: ProfileConfig = {
 			name: "GitHub",
 			icon: "fa6-brands:github",
 			url: "https://github.com/vtnam207",
+		},
+		{
+			name: "Discord",
+			icon: "fa6-brands:discord",
+			url: "https://discord.com/users/835426848145408020",
+		},
+		{
+			name: "Facebook",
+			icon: "fa6-brands:facebook",
+			url: "https://www.facebook.com/vtn261207",
 		},
 	],
 };
