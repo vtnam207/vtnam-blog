@@ -53,7 +53,6 @@ export const navBarConfig: NavBarConfig = {
 };
 
 export const profileConfig: ProfileConfig = {
-	export const profileConfig: ProfileConfig = {
 	avatar: "assets/images/demo-avatar.png",
 	name: "vtnam",
 	bio: "Learning reverse engineering, one challenge at a time.",
