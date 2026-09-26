@@ -83,6 +83,11 @@ const jsonLd = {
                 </div>
             </div>
 
+            {(entry.data.ctf || entry.data.difficulty || entry.data.points !== undefined) && <div class="challenge-meta">
+                {entry.data.ctf && <span>{entry.data.ctf}</span>}
+                {entry.data.difficulty && <span class="pill">{entry.data.difficulty}</span>}
+                {entry.data.points !== undefined && <span class="points">{entry.data.points}<small> pts</small></span>}
+            </div>}
             <!-- metadata -->
             <div class="onload-animation">
                 <PostMetadata

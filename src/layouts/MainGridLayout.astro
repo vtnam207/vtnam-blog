@@ -1,125 +1,118 @@
 ---
-import BackToTop from "@components/control/BackToTop.astro";
-import Footer from "@components/Footer.astro";
-import Navbar from "@components/Navbar.astro";
-import SideBar from "@components/widget/SideBar.astro";
 import type { MarkdownHeading } from "astro";
-import { Icon } from "astro-icon/components";
-import ImageWrapper from "../components/misc/ImageWrapper.astro";
-import TOC from "../components/widget/TOC.astro";
-import { siteConfig } from "../config";
-import {
-	BANNER_HEIGHT,
-	BANNER_HEIGHT_EXTEND,
-	MAIN_PANEL_OVERLAPS_BANNER_HEIGHT,
-} from "../constants/constants";
-import Layout from "./Layout.astro";
-
-interface Props {
-	title?: string;
-	banner?: string;
-	description?: string;
-	lang?: string;
-	setOGTypeArticle?: boolean;
-	headings?: MarkdownHeading[];
+import { siteConfig, profileConfig } from "../config";
+import { getSortedPosts } from "../utils/content-utils";
+import { getPostUrlBySlug, url, pathsEqual } from "../utils/url-utils";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/700.css";
+import "@fontsource-variable/jetbrains-mono";
+import "katex/dist/katex.css";
+import "../styles/variables.styl";
+import "../styles/main.css";
+import "../styles/markdown.css";
+import "../styles/markdown-extend.styl";
+import "../styles/expressive-code.css";
+import "../styles/ctf-layout.css";
+interface Props { title?: string; banner?: string; description?: string; lang?: string; setOGTypeArticle?: boolean; headings?: MarkdownHeading[]; }
+const { title, description, lang, setOGTypeArticle, headings = [] } = Astro.props;
+const posts = await getSortedPosts();
+const groups = new Map<string, typeof posts>();
+for (const post of posts) {
+  const group = post.data.ctf || post.data.category || "Notes";
+  groups.set(group, [...(groups.get(group) || []), post]);
 }
-
-const {
-	title,
-	banner,
-	description,
-	lang,
-	setOGTypeArticle,
-	headings = [],
-} = Astro.props;
-const hasBannerCredit =
-	siteConfig.banner.enable && siteConfig.banner.credit.enable;
-const hasBannerLink = !!siteConfig.banner.credit.url;
-
-const mainPanelTop = siteConfig.banner.enable
-	? `calc(${BANNER_HEIGHT}vh - ${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT}rem)`
-	: "5.5rem";
+const pageTitle = title ? `${title} · ${siteConfig.title}` : siteConfig.title;
+const canonical = new URL(Astro.url.pathname, Astro.site || Astro.url.origin);
+const toc = headings.filter(h => h.depth > 1 && h.depth <= siteConfig.toc.depth + 1);
 ---
-
-<Layout title={title} banner={banner} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle}>
-
-<!-- Navbar -->
-<slot slot="head" name="head"></slot>
-<div id="top-row" class="z-50 pointer-events-none relative transition-all duration-700 max-w-[var(--page-width)] px-0 md:px-4 mx-auto" class:list={[""]}>
-    <div id="navbar-wrapper" class="pointer-events-auto sticky top-0 transition-all">
-        <Navbar></Navbar>
-    </div>
-</div>
-
-<!-- Banner -->
-{siteConfig.banner.enable && <div id="banner-wrapper" class={`absolute z-10 w-full transition duration-700 overflow-hidden`} style={`top: -${BANNER_HEIGHT_EXTEND}vh`}>
-    <ImageWrapper id="banner" alt="Banner image of the blog" class:list={["object-cover h-full transition duration-700 opacity-0 scale-105"]}
-                  src={siteConfig.banner.src} position={siteConfig.banner.position}
-    >
-    </ImageWrapper>
-</div>}
-
-<!-- Main content -->
-<div class="absolute w-full z-30 pointer-events-none" style={`top: ${mainPanelTop}`}>
-    <!-- The pointer-events-none here prevent blocking the click event of the TOC -->
-    <div class="relative max-w-[var(--page-width)] mx-auto pointer-events-auto">
-        <div id="main-grid" class="transition duration-700 w-full left-0 right-0 grid grid-cols-[17.5rem_auto] grid-rows-[auto_1fr_auto] lg:grid-rows-[auto]
-    mx-auto gap-4 px-0 md:px-4"
-        >
-            <!-- Banner image credit -->
-            {hasBannerCredit && <a href={siteConfig.banner.credit.url} id="banner-credit" target="_blank" rel="noopener" aria-label="Visit image source"
-                                   class:list={["group onload-animation transition-all absolute flex justify-center items-center rounded-full " +
-                                   "px-3 right-4 -top-[3.25rem] bg-black/60 hover:bg-black/70 h-9", {"hover:pr-9 active:bg-black/80": hasBannerLink}]}
-            >
-                <Icon class="text-white/75 text-[1.25rem] mr-1" name="material-symbols:copyright-outline-rounded" ></Icon>
-                <div class="text-white/75 text-xs">{siteConfig.banner.credit.text}</div>
-                <Icon class:list={["transition absolute text-[oklch(0.75_0.14_var(--hue))] right-4 text-[0.75rem] opacity-0",
-                    {"group-hover:opacity-100": hasBannerLink}]}
-                      name="fa6-solid:arrow-up-right-from-square">
-                </Icon>
-            </a>}
-
-
-            <SideBar class="mb-4 row-start-2 row-end-3 col-span-2 lg:row-start-1 lg:row-end-2 lg:col-span-1 lg:max-w-[17.5rem] onload-animation" headings={headings}></SideBar>
-
-            <main id="swup-container" class="transition-swup-fade col-span-2 lg:col-span-1 overflow-hidden">
-                <div id="content-wrapper" class="onload-animation">
-                    <!-- the overflow-hidden here prevent long text break the layout-->
-                    <!-- make id different from windows.swup global property -->
-                    <slot></slot>
-                    <div class="footer col-span-2 onload-animation hidden lg:block">
-                        <Footer></Footer>
-                    </div>
-                </div>
-            </main>
-
-            <div class="footer col-span-2 onload-animation block lg:hidden">
-                <Footer></Footer>
-            </div>
+<!doctype html>
+<html lang={(lang || siteConfig.lang).replace('_', '-')} class="dark" style="--hue: 285">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{pageTitle}</title>
+  <meta name="description" content={description || siteConfig.subtitle} />
+  <link rel="canonical" href={canonical} />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={description || siteConfig.subtitle} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:type" content={setOGTypeArticle ? "article" : "website"} />
+  <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={url('/rss.xml')} />
+  <link rel="icon" type="image/svg+xml" href={url('/ctf-mark.svg')} />
+  <slot name="head" />
+</head>
+<body>
+  <a href="#reading-pane" class="skip-link">Đến nội dung</a>
+  <div class="ctf-shell">
+    <aside class="explorer" aria-label="Danh sách bài viết">
+      <header class="explorer-header">
+        <a class="brand" href={url('/')}><span aria-hidden="true">◆</span> CTF WRITE-UPS</a>
+        <nav aria-label="Điều hướng"><a href={url('/about/')}>ABOUT</a><a href={url('/archive/')}>ARCHIVE</a><a href={url('/rss.xml')}>RSS</a></nav>
+      </header>
+      <div class="identity"><span>{profileConfig.name}</span><span>REVERSE / RESEARCH / NOTES</span></div>
+      <div class="stats">POSTS <b>{posts.length}</b><span>·</span> GROUPS <b>{groups.size}</b><span class="status-dot" aria-label="Online"></span></div>
+      <button class="mobile-toggle" aria-expanded="false" aria-controls="explorer-content">Danh sách bài viết <span>⌄</span></button>
+      <div id="explorer-content">
+        <div class="search-row"><label class="search-box"><span aria-hidden="true">⌕</span><input id="post-search" type="search" placeholder="Search write-ups…" aria-label="Tìm theo tên, tag hoặc giải CTF" /></label><button id="fold-groups" title="Thu gọn hoặc mở các nhóm" aria-label="Thu gọn hoặc mở các nhóm">☷</button></div>
+        <div class="post-groups">
+          {[...groups].map(([name, entries]) => <details class="post-group" open>
+            <summary><span class="diamond">◆</span><span class="group-title">{name}</span><span class="dotted"></span><b>{entries.length}</b></summary>
+            <div class="group-posts">{entries.map(post => <a class:list={["explorer-post", { selected: pathsEqual(Astro.url.pathname, getPostUrlBySlug(post.slug)) }]} aria-current={pathsEqual(Astro.url.pathname, getPostUrlBySlug(post.slug)) ? 'page' : undefined} href={getPostUrlBySlug(post.slug)} data-search={`${post.data.title} ${name} ${post.data.tags.join(' ')} ${post.data.difficulty}`}>
+              <span class="post-marker" aria-hidden="true">◇</span>
+              <div class="post-info"><div class="post-topline"><strong>{post.data.title}</strong>{post.data.points !== undefined && <span class="points">{post.data.points}<small> pts</small></span>}</div><div class="post-bottomline"><div class="mini-tags">{post.data.tags.slice(0,3).map(tag => <span>{tag}</span>)}</div><time datetime={post.data.published.toISOString()}>{post.data.published.toLocaleDateString('en-GB', {timeZone: 'UTC'})}</time>{post.data.difficulty && <span>{post.data.difficulty}</span>}</div></div>
+            </a>)}</div>
+          </details>)}
+          <p id="empty-search" hidden role="status">Không tìm thấy bài phù hợp.</p>
         </div>
-
-        <BackToTop></BackToTop>
-    </div>
-</div>
-
-<!-- The things that should be under the banner, only the TOC for now -->
-<div class="absolute w-full z-0 hidden 2xl:block">
-    <div class="relative max-w-[var(--page-width)] mx-auto">
-        <!-- TOC component -->
-        {siteConfig.toc.enable && <div id="toc-wrapper" class:list={["hidden lg:block transition absolute top-0 -right-[var(--toc-width)] w-[var(--toc-width)] items-center",
-            {"toc-hide": siteConfig.banner.enable}]}
-        >
-            <div id="toc-inner-wrapper" class="fixed top-14 w-[var(--toc-width)] h-[calc(100vh_-_20rem)] overflow-y-scroll overflow-x-hidden hide-scrollbar">
-                <div id="toc" class="w-full h-full transition-swup-fade ">
-                    <div class="h-8 w-full"></div>
-                    <TOC headings={headings}></TOC>
-                    <div class="h-8 w-full"></div>
-                </div>
-            </div>
-        </div>}
-
-        <!-- #toc needs to exist for Swup to work normally -->
-        {!siteConfig.toc.enable && <div id="toc"></div>}
-    </div>
-</div>
-</Layout>
+      </div>
+      <footer class="explorer-footer"><span>© {new Date().getFullYear()} {profileConfig.name}</span><a href="https://github.com/hellohi2612" target="_blank" rel="noopener noreferrer">GITHUB ↗</a></footer>
+    </aside>
+    <main id="reading-pane" tabindex="-1" class:list={["reading-pane", { 'has-toc': siteConfig.toc.enable && toc.length > 0 }]}>
+      <div class="reader-top"><a href={url('/')}>{siteConfig.title}</a><span>FIELD NOTES <span aria-hidden="true">✦</span></span></div>
+      <div class="reader-grid"><div class="reader-content"><slot /></div>
+      {siteConfig.toc.enable && toc.length > 0 && <nav id="toc" class="reader-toc" aria-label="Mục lục"><p>MỤC LỤC</p>{toc.map(h => <a class:list={[{subheading: h.depth > 2}]} href={`#${h.slug}`}>{h.text}</a>)}</nav>}
+      </div>
+      <footer class="reader-footer">{siteConfig.subtitle}<a href="#reading-pane">↑ Đầu trang</a></footer>
+    </main>
+  </div>
+</body>
+</html>
+<script>
+const search = document.querySelector<HTMLInputElement>('#post-search');
+const groups = [...document.querySelectorAll<HTMLDetailsElement>('.post-group')];
+search?.addEventListener('input', () => {
+  const query = search.value.toLocaleLowerCase().trim();
+  let total = 0;
+  for (const group of groups) {
+    let count = 0;
+    for (const item of group.querySelectorAll<HTMLAnchorElement>('[data-search]')) {
+      item.hidden = !item.dataset.search?.toLocaleLowerCase().includes(query);
+      if (!item.hidden) count++;
+    }
+    group.hidden = count === 0;
+    if (query) group.open = true;
+    total += count;
+  }
+  const empty = document.getElementById('empty-search');
+  if (empty) empty.hidden = total > 0;
+});
+document.getElementById('fold-groups')?.addEventListener('click', () => {
+  const open = !groups.some(g => !g.hidden && g.open);
+  groups.forEach(g => { g.open = open; });
+});
+document.querySelector('.mobile-toggle')?.addEventListener('click', event => {
+  const button = event.currentTarget as HTMLButtonElement;
+  const expanded = button.getAttribute('aria-expanded') !== 'true';
+  button.setAttribute('aria-expanded', String(expanded));
+  document.querySelector('.explorer')?.classList.toggle('expanded', expanded);
+});
+const links = [...document.querySelectorAll<HTMLAnchorElement>('.reader-toc a')];
+if (links.length) {
+  const observer = new IntersectionObserver(entries => {
+    for (const entry of entries) if (entry.isIntersecting) {
+      links.forEach(link => link.classList.toggle('active', decodeURIComponent(link.hash.slice(1)) === entry.target.id));
+    }
+  }, {rootMargin: '0px 0px -65% 0px'});
+  links.forEach(link => { const target = document.getElementById(decodeURIComponent(link.hash.slice(1))); if(target) observer.observe(target); });
+}
+</script>

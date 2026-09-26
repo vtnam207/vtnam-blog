@@ -18,6 +18,11 @@ const len = page.data.length;
 ---
 
 <MainGridLayout>
+    <section class="home-intro">
+      <p class="eyebrow">VTNAM / PERSONAL NOTEBOOK</p>
+      <h1>Break it down.<br /><span>Write it up.</span></h1>
+      <p>CTF write-ups, reverse engineering và những điều mình học được.</p>
+    </section>
     <PostPage page={page}></PostPage>
     <Pagination class="mx-auto onload-animation" page={page} style={`animation-delay: calc(var(--content-delay) + ${(len)*50}ms)`}></Pagination>
 </MainGridLayout>
