@@ -47,7 +47,7 @@ export const navBarConfig: NavBarConfig = {
 
 export const profileConfig: ProfileConfig = {
   avatar: "/assets/images/profile.webp",
-  name: "vtnam207",
+  name: "vtnam",
   bio: "CTF player • Reverse engineering • Cybersecurity",
   links: [
     {
