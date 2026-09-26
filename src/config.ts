@@ -8,7 +8,7 @@ import type {
 import { LinkPreset } from "./types/config";
 
 export const siteConfig: SiteConfig = {
-  title: "vtnam207.github",
+  title: "vtnam",
   subtitle: "CTF write-ups & Reverse Engineering notes",
   lang: "en",
   themeColor: {
@@ -46,7 +46,7 @@ export const navBarConfig: NavBarConfig = {
 };
 
 export const profileConfig: ProfileConfig = {
-  avatar: "https://github.com/vtnam207.png",
+  avatar: "/assets/images/profile.webp",
   name: "vtnam207",
   bio: "CTF player • Reverse engineering • Cybersecurity",
   links: [
