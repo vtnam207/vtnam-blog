@@ -20,3 +20,13 @@
 .profile-actions a{font:700 11px 'JetBrains Mono Variable',monospace;letter-spacing:1.5px;padding:11px 16px;border:1px solid #b083c329;background:#170f27a6;color:#e7d9ef;border-radius:7px}
 .profile-actions a:hover{color:#f5a6da;background:#623b7066;border-color:#ed8ecb66}
 @media(max-width:900px){.profile-home{padding:20px 0}.profile-home>.card-base{max-width:430px}.profile-about h1{font-size:38px}}
+
+/* Compact profile, wider posts */
+.profile-home{max-width:460px;gap:12px;padding:18px 0}
+.profile-home>.card-base{width:min(100%,260px)!important}
+.profile-about{width:min(100%,460px);padding:0 8px}
+.profile-about h1{font-size:34px;margin:5px 0}
+.profile-about p{font-size:13px;line-height:1.5}
+.profile-actions{margin-top:12px}
+.profile-pane{padding-left:clamp(20px,3vw,44px);padding-right:clamp(20px,3vw,44px)}
+@media(min-width:1100px){.ctf-shell .reading-pane{min-width:0}.reader-content{max-width:none}.profile-pane .profile-home{max-width:440px}}
