@@ -7,15 +7,22 @@ import { getSortedPosts } from "../utils/content-utils";
 import { getTagUrl } from "../utils/url-utils";
 
 export const getStaticPaths = (async ({ paginate }) => {
-  const allBlogPosts = await getSortedPosts();
-  return paginate(allBlogPosts, { pageSize: PAGE_SIZE });
+	const allBlogPosts = await getSortedPosts();
+	return paginate(allBlogPosts, { pageSize: PAGE_SIZE });
 }) satisfies GetStaticPaths;
 // https://github.com/withastro/astro/issues/6507#issuecomment-1489916992
 
 const { page } = Astro.props;
 
 const recentPage = { ...page, data: page.data.slice(0, 4) };
-const featuredTags = ["Reverse Engineering", "CTF", "Windows", "Crypto", "Web Exploit", "Tips & Tricks"];
+const featuredTags = [
+	"Reverse Engineering",
+	"CTF",
+	"Windows",
+	"Crypto",
+	"Web Exploit",
+	"Tips & Tricks",
+];
 ---
 
 <MainGridLayout showProfile={true}>

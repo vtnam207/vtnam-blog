@@ -6,27 +6,45 @@ import { getDir } from "../utils/url-utils";
 import ImageWrapper from "./misc/ImageWrapper.astro";
 
 interface Props {
-  class?: string;
-  entry: CollectionEntry<"posts">;
-  title: string;
-  url: string;
-  published: Date;
-  updated?: Date;
-  tags: string[];
-  category: string | null;
-  image: string;
-  description: string;
-  draft: boolean;
-  style: string;
+	class?: string;
+	entry: CollectionEntry<"posts">;
+	title: string;
+	url: string;
+	published: Date;
+	updated?: Date;
+	tags: string[];
+	category: string | null;
+	image: string;
+	description: string;
+	draft: boolean;
+	style: string;
 }
 
-const { entry, title, url, published, tags, category, image, description, style } = Astro.props;
+const {
+	entry,
+	title,
+	url,
+	published,
+	tags,
+	category,
+	image,
+	description,
+	style,
+} = Astro.props;
 const hasCover = Boolean(image);
 const { remarkPluginFrontmatter } = await entry.render();
 const label = entry.data.ctf || category || tags[0] || "NOTES";
 const summary = description || remarkPluginFrontmatter.excerpt;
-const searchText = [title, label, ...tags, summary, entry.data.difficulty].filter(Boolean).join(" ").toLocaleLowerCase();
-const date = published.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+const searchText = [title, label, ...tags, summary, entry.data.difficulty]
+	.filter(Boolean)
+	.join(" ")
+	.toLocaleLowerCase();
+const date = published.toLocaleDateString("en-US", {
+	month: "short",
+	day: "numeric",
+	year: "numeric",
+	timeZone: "UTC",
+});
 ---
 <article data-post-card data-search={searchText} class:list={["post-card", Astro.props.class]} style={style}>
   <a class="post-cover" href={url} aria-label={`Read ${title}`}>

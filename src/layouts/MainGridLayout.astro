@@ -1,10 +1,10 @@
 ---
 import type { MarkdownHeading } from "astro";
 import { Icon } from "astro-icon/components";
+import Profile from "../components/widget/Profile.astro";
 import { profileConfig, siteConfig } from "../config";
 import { getSortedPosts } from "../utils/content-utils";
 import { url } from "../utils/url-utils";
-import Profile from "../components/widget/Profile.astro";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/700.css";
 import "@fontsource-variable/jetbrains-mono";
@@ -17,22 +17,36 @@ import "../styles/expressive-code.css";
 import "../styles/ctf-layout.css";
 
 interface Props {
-  title?: string;
-  banner?: string;
-  description?: string;
-  lang?: string;
-  setOGTypeArticle?: boolean;
-  headings?: MarkdownHeading[];
-  showProfile?: boolean;
+	title?: string;
+	banner?: string;
+	description?: string;
+	lang?: string;
+	setOGTypeArticle?: boolean;
+	headings?: MarkdownHeading[];
+	showProfile?: boolean;
 }
 
-const { title, description, lang, setOGTypeArticle, headings = [] } = Astro.props;
+const {
+	title,
+	description,
+	lang,
+	setOGTypeArticle,
+	headings = [],
+} = Astro.props;
 const posts = await getSortedPosts();
-const groups = new Set(posts.map((post) => post.data.ctf || post.data.category || "Notes"));
-const activeDays = new Set(posts.slice(0, 4).map((post) => post.data.published.toISOString().slice(0, 10))).size;
+const groups = new Set(
+	posts.map((post) => post.data.ctf || post.data.category || "Notes"),
+);
+const activeDays = new Set(
+	posts
+		.slice(0, 4)
+		.map((post) => post.data.published.toISOString().slice(0, 10)),
+).size;
 const pageTitle = title ? `${title} · ${siteConfig.title}` : siteConfig.title;
 const canonical = new URL(Astro.url.pathname, Astro.site || Astro.url.origin);
-const toc = headings.filter((heading) => heading.depth > 1 && heading.depth <= siteConfig.toc.depth + 1);
+const toc = headings.filter(
+	(heading) => heading.depth > 1 && heading.depth <= siteConfig.toc.depth + 1,
+);
 const isArticle = Boolean(setOGTypeArticle);
 ---
 <!doctype html>
