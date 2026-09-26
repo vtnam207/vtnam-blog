@@ -6,3 +6,17 @@
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
 
 .home-intro{padding:5px 0 28px;margin-bottom:25px;border-bottom:1px solid #ffffff0c}.home-intro .eyebrow{font:10px 'JetBrains Mono Variable',monospace;letter-spacing:2px;color:#b29cc0;margin-bottom:20px}.home-intro h1{font-size:clamp(32px,4vw,54px);font-weight:700;line-height:1.12;letter-spacing:-1.5px;margin:0 0 20px}.home-intro h1 span{color:#e99bce}.home-intro>p:last-child{font-size:14px;color:#bfb2c9;line-height:1.7}
+
+/* Home profile panel */
+.profile-pane{display:flex;flex-direction:column;min-height:calc(100dvh - 56px)}
+.profile-home{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:22px;flex:1;width:100%;max-width:680px;margin:0 auto;padding:34px 0}
+.profile-home>.card-base{width:min(100%,520px);margin:0!important}
+.profile-pane .reader-top{margin-bottom:10px}
+.profile-about{text-align:center;width:min(100%,580px);padding:0 12px}
+.profile-kicker{font:10px 'JetBrains Mono Variable',monospace;letter-spacing:2px;color:#b79cc5}
+.profile-about h1{margin:10px 0 8px;font:700 clamp(34px,5vw,56px)/1.1 Roboto,sans-serif;color:#f1eaf4}
+.profile-about p{margin:0 auto;color:#bfb0c8;line-height:1.75;font-size:15px;max-width:520px}
+.profile-actions{display:flex;justify-content:center;gap:10px;margin-top:22px;flex-wrap:wrap}
+.profile-actions a{font:700 11px 'JetBrains Mono Variable',monospace;letter-spacing:1.5px;padding:11px 16px;border:1px solid #b083c329;background:#170f27a6;color:#e7d9ef;border-radius:7px}
+.profile-actions a:hover{color:#f5a6da;background:#623b7066;border-color:#ed8ecb66}
+@media(max-width:900px){.profile-home{padding:20px 0}.profile-home>.card-base{max-width:430px}.profile-about h1{font-size:38px}}
