@@ -14,6 +14,7 @@ import "../styles/markdown.css";
 import "../styles/markdown-extend.styl";
 import "../styles/expressive-code.css";
 import "../styles/ctf-layout.css";
+
 interface Props {
   title?: string;
   banner?: string;
@@ -52,96 +53,58 @@ const toc = headings.filter(h => h.depth > 1 && h.depth <= siteConfig.toc.depth 
 </head>
 <body>
   <a href="#reading-pane" class="skip-link">Đến nội dung</a>
-  <div class="ctf-shell">
-    <aside class="explorer" aria-label="Danh sách bài viết">
-      <header class="explorer-header">
-        <a class="brand" href={url('/')}><span aria-hidden="true">◆</span> {siteConfig.title}</a>
-        <nav aria-label="Điều hướng"><a href={url('/about/')}>ABOUT</a><a href={url('/archive/')}>ARCHIVE</a><a href={url('/rss.xml')}>RSS</a></nav>
-      </header>
-      <div class="identity"><span>{profileConfig.name}</span><span>REVERSE / RESEARCH / NOTES</span></div>
-      <div class="stats">POSTS <b>{posts.length}</b><span>·</span> GROUPS <b>{groups.size}</b><span class="status-dot" aria-label="Online"></span></div>
-      <button class="mobile-toggle" aria-expanded="false" aria-controls="explorer-content">Danh sách bài viết <span>⌄</span></button>
-      <div id="explorer-content">
-        <div class="search-row"><label class="search-box"><span aria-hidden="true">⌕</span><input id="post-search" type="search" placeholder="Search write-ups…" aria-label="Tìm theo tên, tag hoặc giải CTF" /></label><button id="fold-groups" title="Thu gọn hoặc mở các nhóm" aria-label="Thu gọn hoặc mở các nhóm">☷</button></div>
-        <div class="post-groups">
-          {[...groups].map(([name, entries]) => <details class="post-group" open>
-            <summary><span class="diamond">◆</span><span class="group-title">{name}</span><span class="dotted"></span><b>{entries.length}</b></summary>
-            <div class="group-posts">{entries.map(post => <a class:list={["explorer-post", { selected: pathsEqual(Astro.url.pathname, getPostUrlBySlug(post.slug)) }]} aria-current={pathsEqual(Astro.url.pathname, getPostUrlBySlug(post.slug)) ? 'page' : undefined} href={getPostUrlBySlug(post.slug)} data-search={`${post.data.title} ${name} ${post.data.tags.join(' ')} ${post.data.difficulty}`}>
-              <span class="post-marker" aria-hidden="true">◇</span>
-              <div class="post-info"><div class="post-topline"><strong>{post.data.title}</strong>{post.data.points !== undefined && <span class="points">{post.data.points}<small> pts</small></span>}</div><div class="post-bottomline"><div class="mini-tags">{post.data.tags.slice(0,3).map(tag => <span>{tag}</span>)}</div><time datetime={post.data.published.toISOString()}>{post.data.published.toLocaleDateString('en-GB', {timeZone: 'UTC'})}</time>{post.data.difficulty && <span>{post.data.difficulty}</span>}</div></div>
-            </a>)}</div>
-          </details>)}
-          <p id="empty-search" hidden role="status">Không tìm thấy bài phù hợp.</p>
-        </div>
-      </div>
-      <footer class="explorer-footer"><span>© {new Date().getFullYear()} {profileConfig.name}</span><a href="https://github.com/vtnam207" target="_blank" rel="noopener noreferrer">GITHUB ↗</a></footer>
-    </aside>
-
+  <div class:list={["ctf-shell", { "home-shell": showProfile }]}>
     {showProfile ? (
-      <main id="reading-pane" tabindex="-1" class="reading-pane profile-pane">
-        <div class="reader-top"><a href={url('/')}>{siteConfig.title}</a><span>PROFILE <span aria-hidden="true">✦</span></span></div>
-        <div class="profile-home">
+      <aside class="profile-sidebar" aria-label="Hồ sơ tác giả">
+        <div class="profile-sidebar-top">
+          <a class="brand" href={url('/')}><span aria-hidden="true">◆</span> {siteConfig.title}</a>
+          <span class="sidebar-status"><i aria-hidden="true"></i> ONLINE</span>
+        </div>
+        <div class="profile-card-wrap">
           <Profile />
-          <div class="profile-about">
-            <span class="profile-kicker">VTNAM207 / CTF / REVERSE</span>
-            <h1>{profileConfig.name}</h1>
-            <p>{profileConfig.bio}</p>
-            <div class="profile-actions">
-              <a href={url('/about/')}>ABOUT</a>
-              <a href="https://github.com/vtnam207" target="_blank" rel="noopener noreferrer">GITHUB ↗</a>
-            </div>
+          <div class="profile-extra">
+            <div class="profile-extra-title">FOCUS</div>
+            <div class="focus-tags"><span>CTF</span><span>RE</span><span>WEB</span><span>CRYPTO</span></div>
+            <div class="profile-now"><span class="pulse" aria-hidden="true"></span><div><b>currently learning</b><small>reverse engineering · malware analysis</small></div></div>
           </div>
         </div>
-        <footer class="reader-footer"><span>{siteConfig.subtitle}</span><a href="#reading-pane">↑ Đầu trang</a></footer>
-      </main>
+        <nav class="profile-nav" aria-label="Điều hướng">
+          <a href={url('/')}><span>⌂</span> HOME</a><a href={url('/archive/')}><span>▤</span> ARCHIVE</a><a href={url('/about/')}><span>◈</span> ABOUT</a><a href={url('/rss.xml')}><span>◌</span> RSS</a><a href="https://github.com/vtnam207" target="_blank" rel="noopener noreferrer"><span>↗</span> GITHUB</a>
+        </nav>
+        <div class="profile-stats"><div><b>{posts.length}</b><span>POSTS</span></div><div><b>{groups.size}</b><span>GROUPS</span></div><div><b>∞</b><span>LEARN</span></div></div>
+        <footer class="profile-sidebar-footer"><span>© {new Date().getFullYear()} {profileConfig.name}</span><span>vtnam / notes</span></footer>
+      </aside>
     ) : (
-      <main id="reading-pane" tabindex="-1" class:list={["reading-pane", { 'has-toc': siteConfig.toc.enable && toc.length > 0 }]}>
-        <div class="reader-top"><a href={url('/')}>{siteConfig.title}</a><span>FIELD NOTES <span aria-hidden="true">✦</span></span></div>
-        <div class="reader-grid"><div class="reader-content"><slot /></div>
-        {siteConfig.toc.enable && toc.length > 0 && <nav id="toc" class="reader-toc" aria-label="Mục lục"><p>MỤC LỤC</p>{toc.map(h => <a class:list={[{subheading: h.depth > 2}]} href={`#${h.slug}`}>{h.text}</a>)}</nav>}
+      <aside class="explorer" aria-label="Danh sách bài viết">
+        <header class="explorer-header"><a class="brand" href={url('/')}><span aria-hidden="true">◆</span> {siteConfig.title}</a><nav aria-label="Điều hướng"><a href={url('/about/')}>ABOUT</a><a href={url('/archive/')}>ARCHIVE</a><a href={url('/rss.xml')}>RSS</a></nav></header>
+        <div class="identity"><span>{profileConfig.name}</span><span>REVERSE / RESEARCH / NOTES</span></div>
+        <div class="stats">POSTS <b>{posts.length}</b><span>·</span> GROUPS <b>{groups.size}</b><span class="status-dot" aria-label="Online"></span></div>
+        <button class="mobile-toggle" aria-expanded="false" aria-controls="explorer-content">Danh sách bài viết <span>⌄</span></button>
+        <div id="explorer-content"><div class="search-row"><label class="search-box"><span aria-hidden="true">⌕</span><input id="post-search" type="search" placeholder="Search write-ups…" aria-label="Tìm theo tên, tag hoặc giải CTF" /></label><button id="fold-groups" title="Thu gọn hoặc mở các nhóm" aria-label="Thu gọn hoặc mở các nhóm">☷</button></div>
+          <div class="post-groups">
+            {[...groups].map(([name, entries]) => <details class="post-group" open><summary><span class="diamond">◆</span><span class="group-title">{name}</span><span class="dotted"></span><b>{entries.length}</b></summary><div class="group-posts">{entries.map(post => <a class:list={["explorer-post", { selected: pathsEqual(Astro.url.pathname, getPostUrlBySlug(post.slug)) }]} href={getPostUrlBySlug(post.slug)} data-search={`${post.data.title} ${name} ${post.data.tags.join(' ')} ${post.data.difficulty}`}><span class="post-marker">◇</span><div class="post-info"><div class="post-topline"><strong>{post.data.title}</strong>{post.data.points !== undefined && <span class="points">{post.data.points}<small> pts</small></span>}</div><div class="post-bottomline"><div class="mini-tags">{post.data.tags.slice(0,3).map(tag => <span>{tag}</span>)}</div><time>{post.data.published.toLocaleDateString('en-GB', {timeZone:'UTC'})}</time></div></div></a>)}</div></details>)}
+            <p id="empty-search" hidden role="status">Không tìm thấy bài phù hợp.</p>
+          </div>
         </div>
-        <footer class="reader-footer">{siteConfig.subtitle}<a href="#reading-pane">↑ Đầu trang</a></footer>
-      </main>
+        <footer class="explorer-footer"><span>© {new Date().getFullYear()} {profileConfig.name}</span><a href="https://github.com/vtnam207" target="_blank" rel="noopener noreferrer">GITHUB ↗</a></footer>
+      </aside>
     )}
+
+    <main id="reading-pane" tabindex="-1" class:list={["reading-pane", { "has-toc": siteConfig.toc.enable && toc.length > 0, "home-reader": showProfile }]}>
+      <div class="reader-top"><div><a href={url('/')}>{siteConfig.title}</a><span class="reader-separator">/</span><span>REVERSE / RESEARCH / NOTES</span></div><span class="reader-top-meta">{posts.length} POSTS <i>✦</i></span></div>
+      {showProfile && <div class="home-toolbar"><label class="home-search"><span>⌕</span><input id="home-search" type="search" placeholder="Search posts, tags, or keywords…" aria-label="Search posts" /></label><span class="kbd"><kbd>Ctrl</kbd><b>+</b><kbd>K</kbd></span></div>}
+      {showProfile && <section class="home-intro"><div><p class="eyebrow">PERSONAL NOTEBOOK · {groups.size} COLLECTIONS</p><h1>Break it down.<br /><span>Write it up.</span></h1><p>CTF write-ups, reverse engineering notes, tooling experiments, and things worth keeping.</p></div><div class="home-signal"><span class="signal-dot"></span> FIELD NOTES ACTIVE</div></section>}
+      <div class="reader-grid"><div class="reader-content"><slot /></div>{siteConfig.toc.enable && toc.length > 0 && <nav id="toc" class="reader-toc" aria-label="Mục lục"><p>MỤC LỤC</p>{toc.map(h => <a class:list={[{subheading:h.depth>2}]} href={`#${h.slug}`}>{h.text}</a>)}</nav>}</div>
+      {showProfile && <div class="featured-strip"><span>✦</span><b>FEATURED TAGS</b>{[...groups.keys()].slice(0,6).map(group => <span class="featured-tag">{group}</span>)}</div>}
+      <footer class="reader-footer"><span>{siteConfig.subtitle}</span><a href="#reading-pane">↑ TOP</a></footer>
+    </main>
   </div>
 </body>
 </html>
 <script>
-const search = document.querySelector<HTMLInputElement>('#post-search');
-const groups = [...document.querySelectorAll<HTMLDetailsElement>('.post-group')];
-search?.addEventListener('input', () => {
-  const query = search.value.toLocaleLowerCase().trim();
-  let total = 0;
-  for (const group of groups) {
-    let count = 0;
-    for (const item of group.querySelectorAll<HTMLAnchorElement>('[data-search]')) {
-      item.hidden = !item.dataset.search?.toLocaleLowerCase().includes(query);
-      if (!item.hidden) count++;
-    }
-    group.hidden = count === 0;
-    if (query) group.open = true;
-    total += count;
-  }
-  const empty = document.getElementById('empty-search');
-  if (empty) empty.hidden = total > 0;
-});
-document.getElementById('fold-groups')?.addEventListener('click', () => {
-  const open = !groups.some(g => !g.hidden && g.open);
-  groups.forEach(g => { g.open = open; });
-});
-document.querySelector('.mobile-toggle')?.addEventListener('click', event => {
-  const button = event.currentTarget as HTMLButtonElement;
-  const expanded = button.getAttribute('aria-expanded') !== 'true';
-  button.setAttribute('aria-expanded', String(expanded));
-  document.querySelector('.explorer')?.classList.toggle('expanded', expanded);
-});
-const links = [...document.querySelectorAll<HTMLAnchorElement>('.reader-toc a')];
-if (links.length) {
-  const observer = new IntersectionObserver(entries => {
-    for (const entry of entries) if (entry.isIntersecting) {
-      links.forEach(link => link.classList.toggle('active', decodeURIComponent(link.hash.slice(1)) === entry.target.id));
-    }
-  }, {rootMargin: '0px 0px -65% 0px'});
-  links.forEach(link => { const target = document.getElementById(decodeURIComponent(link.hash.slice(1))); if(target) observer.observe(target); });
-}
+const search = document.querySelector<HTMLInputElement>('#post-search'); const groups = [...document.querySelectorAll<HTMLDetailsElement>('.post-group')];
+search?.addEventListener('input',()=>{const q=search.value.toLocaleLowerCase().trim();let total=0;groups.forEach(g=>{let n=0;g.querySelectorAll<HTMLAnchorElement>('[data-search]').forEach(a=>{a.hidden=!!q&&!a.dataset.search?.toLocaleLowerCase().includes(q);if(!a.hidden)n++});g.hidden=n===0;if(q)g.open=true;total+=n});const e=document.getElementById('empty-search');if(e)e.hidden=total>0});
+document.getElementById('fold-groups')?.addEventListener('click',()=>{const open=!groups.some(g=>!g.hidden&&g.open);groups.forEach(g=>g.open=open)});
+document.querySelector('.mobile-toggle')?.addEventListener('click',e=>{const b=e.currentTarget as HTMLButtonElement;const x=b.getAttribute('aria-expanded')!=='true';b.setAttribute('aria-expanded',String(x));document.querySelector('.explorer')?.classList.toggle('expanded',x)});
+const homeSearch=document.querySelector<HTMLInputElement>('#home-search');homeSearch?.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();homeSearch.focus()}});document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();homeSearch?.focus()}});
 </script>
