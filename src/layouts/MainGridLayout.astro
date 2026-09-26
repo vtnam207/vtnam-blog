@@ -62,7 +62,6 @@ const isArticle = Boolean(setOGTypeArticle);
     <meta property="og:description" content={description || siteConfig.subtitle} />
     <meta property="og:url" content={canonical} />
     <meta property="og:type" content={isArticle ? "article" : "website"} />
-    <link rel="alternate" type="application/rss+xml" title={siteConfig.title} href={url("/rss.xml")} />
     <link rel="icon" type="image/svg+xml" href={url("/ctf-mark.svg")} />
     <slot name="head" />
   </head>
@@ -74,7 +73,6 @@ const isArticle = Boolean(setOGTypeArticle);
       <nav aria-label="Main navigation">
         <a href={url("/about/")}><Icon name="fa6-regular:user" /> ABOUT</a>
         <a href={url("/archive/")}><Icon name="fa6-regular:folder-open" /> ARCHIVE</a>
-        <a href={url("/rss.xml")}><Icon name="fa6-solid:rss" /> RSS</a>
         <span class="nav-divider"></span>
         <span class="theme-mark" aria-label="Dark theme">☾</span>
       </nav>
@@ -100,7 +98,6 @@ const isArticle = Boolean(setOGTypeArticle);
           <p class="social-heading"><Icon name="fa6-solid:link" /> Socials</p>
           <div class="social-icons">
             {profileConfig.links.map((item) => <a rel="me noopener noreferrer" aria-label={item.name} href={item.url} target="_blank" title={item.name}><Icon name={item.icon} /><span>↗</span></a>)}
-            <a aria-label="RSS feed" href={url("/rss.xml")} title="RSS"><Icon name="fa6-solid:rss" /><span>↗</span></a>
           </div>
         </section>
         <blockquote class="sidebar-quote"><span aria-hidden="true">“</span><p>Small steps make<br />big progress.</p><span class="quote-spark" aria-hidden="true">♧</span></blockquote>
@@ -112,7 +109,7 @@ const isArticle = Boolean(setOGTypeArticle);
           <div class="reader-content"><slot /></div>
           {siteConfig.toc.enable && toc.length > 0 && <nav id="toc" class="reader-toc" aria-label="Mục lục"><p>ON THIS PAGE</p>{toc.map((heading) => <a class:list={[{ subheading: heading.depth > 2 }]} href={`#${heading.slug}`}>{heading.text}</a>)}</nav>}
         </div>
-        <footer class="reader-footer"><span>© {new Date().getFullYear()} {profileConfig.name} <b>—</b> Built with Astro & Tailwind CSS</span><nav aria-label="Footer links"><a href="https://github.com/vtnam207" target="_blank" rel="noopener noreferrer">GitHub</a><a href={url("/about/")}>About</a><a href={url("/archive/")}>Archive</a><a href={url("/rss.xml")}>RSS</a></nav></footer>
+        <footer class="reader-footer"><span>© {new Date().getFullYear()} {profileConfig.name} <b>—</b> Built with Astro & Tailwind CSS</span><nav aria-label="Footer links"><a href="https://github.com/vtnam207" target="_blank" rel="noopener noreferrer">GitHub</a><a href={url("/about/")}>About</a><a href={url("/archive/")}>Archive</a></nav></footer>
       </main>
     </div>
   </body>
