@@ -231,6 +231,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 :root:not(.dark) .post-category,
 :root:not(.dark) .challenge-meta .pill { border-color: #c7a9dc; color: #704291; background: #e9daf277; }
 :root:not(.dark) .featured-tags > div a:hover { border-color: #a865c8; background: #ddc8ed; }
+:root:not(.dark) .keep-hacking img { filter: invert(1) hue-rotate(180deg); mix-blend-mode: multiply; }
 :root:not(.dark) .reader-toc { border-color: #d9cbe8; background: #fffaff; }
 :root:not(.dark) .reader-toc p,
 :root:not(.dark) .reader-toc a { color: #665672; }
