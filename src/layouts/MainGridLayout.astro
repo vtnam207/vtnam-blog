@@ -3,6 +3,7 @@ import type { MarkdownHeading } from "astro";
 import { siteConfig, profileConfig } from "../config";
 import { getSortedPosts } from "../utils/content-utils";
 import { getPostUrlBySlug, url, pathsEqual } from "../utils/url-utils";
+import Profile from "../components/widget/Profile.astro";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/700.css";
 import "@fontsource-variable/jetbrains-mono";
@@ -13,8 +14,16 @@ import "../styles/markdown.css";
 import "../styles/markdown-extend.styl";
 import "../styles/expressive-code.css";
 import "../styles/ctf-layout.css";
-interface Props { title?: string; banner?: string; description?: string; lang?: string; setOGTypeArticle?: boolean; headings?: MarkdownHeading[]; }
-const { title, description, lang, setOGTypeArticle, headings = [] } = Astro.props;
+interface Props {
+  title?: string;
+  banner?: string;
+  description?: string;
+  lang?: string;
+  setOGTypeArticle?: boolean;
+  headings?: MarkdownHeading[];
+  showProfile?: boolean;
+}
+const { title, description, lang, setOGTypeArticle, headings = [], showProfile = false } = Astro.props;
 const posts = await getSortedPosts();
 const groups = new Map<string, typeof posts>();
 for (const post of posts) {
@@ -46,7 +55,7 @@ const toc = headings.filter(h => h.depth > 1 && h.depth <= siteConfig.toc.depth 
   <div class="ctf-shell">
     <aside class="explorer" aria-label="Danh sách bài viết">
       <header class="explorer-header">
-        <a class="brand" href={url('/')}><span aria-hidden="true">◆</span> CTF WRITE-UPS</a>
+        <a class="brand" href={url('/')}><span aria-hidden="true">◆</span> {siteConfig.title}</a>
         <nav aria-label="Điều hướng"><a href={url('/about/')}>ABOUT</a><a href={url('/archive/')}>ARCHIVE</a><a href={url('/rss.xml')}>RSS</a></nav>
       </header>
       <div class="identity"><span>{profileConfig.name}</span><span>REVERSE / RESEARCH / NOTES</span></div>
@@ -65,15 +74,35 @@ const toc = headings.filter(h => h.depth > 1 && h.depth <= siteConfig.toc.depth 
           <p id="empty-search" hidden role="status">Không tìm thấy bài phù hợp.</p>
         </div>
       </div>
-      <footer class="explorer-footer"><span>© {new Date().getFullYear()} {profileConfig.name}</span><a href="https://github.com/hellohi2612" target="_blank" rel="noopener noreferrer">GITHUB ↗</a></footer>
+      <footer class="explorer-footer"><span>© {new Date().getFullYear()} {profileConfig.name}</span><a href="https://github.com/vtnam207" target="_blank" rel="noopener noreferrer">GITHUB ↗</a></footer>
     </aside>
-    <main id="reading-pane" tabindex="-1" class:list={["reading-pane", { 'has-toc': siteConfig.toc.enable && toc.length > 0 }]}>
-      <div class="reader-top"><a href={url('/')}>{siteConfig.title}</a><span>FIELD NOTES <span aria-hidden="true">✦</span></span></div>
-      <div class="reader-grid"><div class="reader-content"><slot /></div>
-      {siteConfig.toc.enable && toc.length > 0 && <nav id="toc" class="reader-toc" aria-label="Mục lục"><p>MỤC LỤC</p>{toc.map(h => <a class:list={[{subheading: h.depth > 2}]} href={`#${h.slug}`}>{h.text}</a>)}</nav>}
-      </div>
-      <footer class="reader-footer">{siteConfig.subtitle}<a href="#reading-pane">↑ Đầu trang</a></footer>
-    </main>
+
+    {showProfile ? (
+      <main id="reading-pane" tabindex="-1" class="reading-pane profile-pane">
+        <div class="reader-top"><a href={url('/')}>{siteConfig.title}</a><span>PROFILE <span aria-hidden="true">✦</span></span></div>
+        <div class="profile-home">
+          <Profile />
+          <div class="profile-about">
+            <span class="profile-kicker">VTNAM207 / CTF / REVERSE</span>
+            <h1>{profileConfig.name}</h1>
+            <p>{profileConfig.bio}</p>
+            <div class="profile-actions">
+              <a href={url('/about/')}>ABOUT</a>
+              <a href="https://github.com/vtnam207" target="_blank" rel="noopener noreferrer">GITHUB ↗</a>
+            </div>
+          </div>
+        </div>
+        <footer class="reader-footer"><span>{siteConfig.subtitle}</span><a href="#reading-pane">↑ Đầu trang</a></footer>
+      </main>
+    ) : (
+      <main id="reading-pane" tabindex="-1" class:list={["reading-pane", { 'has-toc': siteConfig.toc.enable && toc.length > 0 }]}>
+        <div class="reader-top"><a href={url('/')}>{siteConfig.title}</a><span>FIELD NOTES <span aria-hidden="true">✦</span></span></div>
+        <div class="reader-grid"><div class="reader-content"><slot /></div>
+        {siteConfig.toc.enable && toc.length > 0 && <nav id="toc" class="reader-toc" aria-label="Mục lục"><p>MỤC LỤC</p>{toc.map(h => <a class:list={[{subheading: h.depth > 2}]} href={`#${h.slug}`}>{h.text}</a>)}</nav>}
+        </div>
+        <footer class="reader-footer">{siteConfig.subtitle}<a href="#reading-pane">↑ Đầu trang</a></footer>
+      </main>
+    )}
   </div>
 </body>
 </html>
