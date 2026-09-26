@@ -10,19 +10,12 @@ export const getStaticPaths = (async ({ paginate }) => {
   const allBlogPosts = await getSortedPosts();
   return paginate(allBlogPosts, { pageSize: PAGE_SIZE });
 }) satisfies GetStaticPaths;
-// https://github.com/withastro/astro/issues/6507#issuecomment-1489916992
 
 const { page } = Astro.props;
-
 const len = page.data.length;
 ---
 
 <MainGridLayout showProfile={true}>
-  <section class="home-intro">
-    <p class="eyebrow">VTNAM207 / PERSONAL NOTEBOOK</p>
-    <h1>Break it down.<br /><span>Write it up.</span></h1>
-    <p>CTF write-ups, reverse engineering và những điều mình học được.</p>
-  </section>
   <PostPage page={page}></PostPage>
   <Pagination class="mx-auto onload-animation" page={page} style={`animation-delay: calc(var(--content-delay) + ${(len)*50}ms)`}></Pagination>
 </MainGridLayout>
