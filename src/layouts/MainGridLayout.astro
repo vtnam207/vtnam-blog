@@ -55,6 +55,15 @@ const isArticle = Boolean(setOGTypeArticle);
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#100d18" />
+    <script is:inline>
+      try {
+        if (localStorage.getItem("vtnam-theme") === "light") {
+          document.documentElement.classList.remove("dark");
+          document.documentElement.style.colorScheme = "light";
+          document.querySelector('meta[name="theme-color"]')?.setAttribute("content", "#f8f5fd");
+        }
+      } catch (_) { /* Keep the default dark theme when storage is unavailable. */ }
+    </script>
     <title>{pageTitle}</title>
     <meta name="description" content={description || siteConfig.subtitle} />
     <link rel="canonical" href={canonical} />
@@ -76,7 +85,7 @@ const isArticle = Boolean(setOGTypeArticle);
         <a href={url("/archive/")}><Icon name="fa6-regular:folder-open" /> ARCHIVE</a>
         <a href={url("/rss.xml")}><Icon name="fa6-solid:rss" /> RSS</a>
         <span class="nav-divider"></span>
-        <span class="theme-mark" aria-label="Dark theme">☾</span>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to light mode" aria-pressed="true" title="Toggle dark and light mode"><span class="theme-moon" aria-hidden="true">☾</span><span class="theme-sun" aria-hidden="true">☀</span></button>
       </nav>
     </header>
     <div class="ctf-shell">
@@ -119,6 +128,21 @@ const isArticle = Boolean(setOGTypeArticle);
 </html>
 
 <script>
+const themeToggle = document.querySelector<HTMLButtonElement>("#theme-toggle");
+const updateThemeButton = () => {
+  const dark = document.documentElement.classList.contains("dark");
+  themeToggle?.setAttribute("aria-pressed", String(dark));
+  themeToggle?.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+};
+updateThemeButton();
+themeToggle?.addEventListener("click", () => {
+  const dark = document.documentElement.classList.toggle("dark");
+  document.documentElement.style.colorScheme = dark ? "dark" : "light";
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#100e24" : "#f8f5fd");
+  try { localStorage.setItem("vtnam-theme", dark ? "dark" : "light"); } catch (_) { /* Theme still changes for this page. */ }
+  updateThemeButton();
+});
+
 const search = document.querySelector<HTMLInputElement>("#home-post-search");
 search?.addEventListener("input", () => {
   const query = search.value.toLocaleLowerCase().trim();
