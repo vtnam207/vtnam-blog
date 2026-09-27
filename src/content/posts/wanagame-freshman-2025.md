@@ -1,6 +1,6 @@
 ---
 title: "Wanagame Freshman 2025"
-published: 2026-09-27
+published: 2025-11-11
 description: "Write-up SuperEasy_crackme, Shy_crackme và TRACE_ME."
 ctf: "Wanagame Freshman 2025"
 category: "Reverse Engineering"
