@@ -1,6 +1,6 @@
 ---
 title: "W1 Recruit 2026"
-published: 2026-09-27
+published: 2026-09-13
 description: "Write-up Rev_easy_rev và Cookies: anti-debug, payload giải mã lúc chạy và VM."
 ctf: "W1 Recruit 2026"
 category: "Reverse Engineering"
