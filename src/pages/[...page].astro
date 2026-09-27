@@ -3,7 +3,7 @@ import type { GetStaticPaths } from "astro";
 import PostPage from "../components/PostPage.astro";
 import { PAGE_SIZE } from "../constants/constants";
 import MainGridLayout from "../layouts/MainGridLayout.astro";
-import { getSortedPosts } from "../utils/content-utils";
+import { getSortedPosts, getTagList } from "../utils/content-utils";
 import { getTagUrl } from "../utils/url-utils";
 
 export const getStaticPaths = (async ({ paginate }) => {
@@ -15,14 +15,10 @@ export const getStaticPaths = (async ({ paginate }) => {
 const { page } = Astro.props;
 
 const recentPage = { ...page, data: page.data.slice(0, 4) };
-const featuredTags = [
-	"Reverse Engineering",
-	"CTF",
-	"Windows",
-	"Crypto",
-	"Web Exploit",
-	"Tips & Tricks",
-];
+const featuredTags = (await getTagList())
+	.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+	.slice(0, 6)
+	.map((tag) => tag.name);
 ---
 
 <MainGridLayout showProfile={true}>
